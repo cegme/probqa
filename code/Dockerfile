@@ -58,20 +58,19 @@ RUN mkdir -p /home/dsr/ && cd /home/dsr &&\
   mvn package -DskipTests &&\
   dpkg -i target/releases/elasticsearch*.deb
 
-# Add servces 
-RUN echo "/etc/init.d/elasticsearch restart\n" >> /home/dsr/startup.sh
 
 # TODO Install the Kun's Prob KB
 # TODO Install Yang's data set
 
 
 
-# Install Quepy and dependencies
+# Install Quepy and dependencies (from source)
 RUN cd /home/dsr/ &&\
   git clone https://github.com/machinalis/quepy.git &&\
   cd quepy &&\
   apt-get -y install python-pip python-numpy-dbg &&\
   pip install docopt==0.6.1 &&\
+  python setup.py install 
   pip install quepy
 
 
@@ -87,10 +86,27 @@ RUN cd /home/dsr/ &&\
 
 
   
+USER postgres
+
+RUN /etc/init.d/postgresql start &&\
+  createdb -O postgres madlib
+
+# EXTREMELY unsafe hack for easy DB access
+RUN sed -i 's/peer/trust/' /etc/postgresql/9.3/main/pg_hba.conf &&\
+  echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.3/main/pg_hba.conf &&\
+  echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 
 
+RUN /etc/init.d/postgresql start &&\
+  createlang plpythonu madlib &&\
+  apt-get -y install ipython
 
 
+USER root
+
+# Add servces 
+RUN echo "/etc/init.d/elasticsearch restart\n" >> /home/dsr/startup.sh &&\
+  echo "/etc/init.d/postgresql start" >> /home/dsr/startup.sh
 
 # Create a file to start virtuoso, elasticsearch, ...
 CMD cd /home/dsr/ && bash startup.sh && /bin/bash
