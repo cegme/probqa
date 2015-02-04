@@ -164,6 +164,18 @@ RUN /etc/init.d/postgresql start &&\
   bin/sdbconfig --sdb sdb.ttl --format &&\
   bin/sdbconfig --create
 
+# Download freebase
+ADD http://commondatastorage.googleapis.com/freebase-public/rdf/freebase-rdf-latest.gz /home/dsr/jena/jena-sdb/
+ADD http://people.apache.org/~andy/Freebase20121223/fixit /home/dsr/jena/jena-sdb/
+ADD http://people.apache.org/~andy/Freebase20121223/dwim /home/dsr/jena/jena-sdb/
+ADD http://people.apache.org/~andy/Freebase20121223/header.ttl /home/dsr/jena/jena-sdb/
+
+RUN cd /home/dsr/jena/jena-sdb/ &&\
+  time gzip -d < ../freebase-rdf-2012-12-23-00-00.gz | split -l 10000000 &&\
+  time dwim ???
+  
+
+
 USER root
 
 # Add servces 
