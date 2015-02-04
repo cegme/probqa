@@ -70,7 +70,7 @@ RUN cd /home/dsr/ &&\
   cd quepy &&\
   apt-get -y install python-pip python-numpy-dbg &&\
   pip install docopt==0.6.1 &&\
-  python setup.py install 
+  python setup.py install &&\
   pip install quepy
 
 
@@ -89,7 +89,10 @@ RUN cd /home/dsr/ &&\
 USER postgres
 
 RUN /etc/init.d/postgresql start &&\
-  createdb -O postgres madlib
+  psql -U postgres --command "ALTER USER postgres WITH SUPERUSER PASSWORD 'mypass';" &&\
+  createdb -O postgres -U postgres madlib
+
+#psql -U postgres --command "ALTER USER postgres SET search_path = public;" &&\
 
 # EXTREMELY unsafe hack for easy DB access
 RUN sed -i 's/peer/trust/' /etc/postgresql/9.3/main/pg_hba.conf &&\
@@ -98,9 +101,68 @@ RUN sed -i 's/peer/trust/' /etc/postgresql/9.3/main/pg_hba.conf &&\
 
 
 RUN /etc/init.d/postgresql start &&\
-  createlang plpythonu madlib &&\
-  apt-get -y install ipython
+  createlang plpythonu madlib 
 
+
+USER root
+
+RUN apt-get -y install ipython
+
+# Install jena
+RUN cd /home/dsr &&\
+  git clone https://github.com/apache/jena.git &&\
+  cd jena/jena-sdb &&\
+  mvn clean install -Dmaven.test.skip=true
+
+ADD https://jdbc.postgresql.org/download/postgresql-9.3-1103.jdbc41.jar /home/dsr/jena/jena-sdb/
+
+
+# Jena environment variables
+#RUN /etc/init.d/postgresql start &&\
+#  psql -U postgres --command "ALTER USER postgres SET search_path = public;"
+
+# Make .ttl file
+RUN echo "@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> ." > /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ." >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "@prefix ja:       <http://jena.hpl.hp.com/2005/11/Assembler#> ." >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "@prefix sdb:      <http://jena.hpl.hp.com/2007/sdb#> ." >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "\n" >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "[] ja:loadClass \"com.hp.hpl.jena.sdb.SDB\" ." >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "sdb:DatasetStore  rdfs:subClassOf  ja:RDFDataset ." >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "\n" >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "<#dataset> rdf:type sdb:DatasetStore ;" >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "    sdb:store <#store> ." >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "<#store> rdf:type sdb:Store ;" >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "    sdb:layout         \"layout2/hash\" ;" >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "sdb:connection     <#conn> ." >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "\n" >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "<#conn> rdf:type sdb:SDBConnection ;" >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "\n" >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "     sdb:sdbType        \"postgresql\" ;" >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "     sdb:sdbHost        \"localhost\" ;" >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "     sdb:sdbName        \"madlib\" ;" >> /home/dsr/jena/jena-sdb/sdb.ttl &&\
+  echo "    ." >> /home/dsr/jena/jena-sdb/sdb.ttl
+
+
+ENV SDBROOT /home/dsr/jena/jena-sdb
+ENV PATH $SDBROOT/bin:$PATH
+ENV SDB_USER postgres
+ENV SDB_PASSWORD mypass
+ENV SDB_JDBC /home/dsr/jena/jena-sdb/postgresql-9.3-1103.jdbc41.jar
+ENV CLASSPATH $SDB_JDBC/bin:$CLASSPATH
+
+ENV JENAROOT /home/dsr/jena
+ENV PATH $JENAROOT/bin:$PATH
+
+RUN chmod 777 /home/dsr/jena/jena-sdb/postgresql-9.3-1103.jdbc41.jar
+
+USER postgres
+
+## Initialize jena
+RUN /etc/init.d/postgresql start &&\
+  cd /home/dsr/jena/jena-sdb &&\
+  bin/sdbconfig --sdb sdb.ttl --format &&\
+  bin/sdbconfig --create
 
 USER root
 
