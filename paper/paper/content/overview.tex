@@ -60,7 +60,7 @@ The status of queries and the underlying processes are displayed on the main int
 When a user enters a natural language utterance \(q\), we use the SEMPRE 2.0 system to transform the utterance to a logical form~\cite{berant2013freebase,berant2013semantic}.
 We then translate the logical form to SPARQL for execution over the knowledge base \(\mathcal{D}\).
 Let \(s(q)\) be a function that transforms a natural language utterance to the SPARQL query.
-We then parse the SPARQL query and extract the intermediate triples \( t_{s(q)} = \{\langle s,p,o\rangle\, \ldots \}\). 
+We then parse the SPARQL query and extract the intermediate triples \( t_{s(q)} = \{\langle s,p,o\rangle_1, \ldots \}\). 
 Like the SPARQL query, these triples only specify a template of the facts that are required to evaluate the utterance.
 We evaluate the SPARQL query over \(\mathcal{D}\) to obtain an answer \( \alpha \), we map the query template to define the candidate set of triples \( t^\alpha_{s(q)} \).
 
@@ -78,9 +78,10 @@ An equation representing this value is as follows,
   \end{cases}
 \]
 
-where \( P(s,p,o) = P(s|p,o) * P(p|o) * P(o) \).
+where \( P(s,p,o) = P(s|p,o)  P(p|o)  P(o) \).
 
-We then use the k-hop algorithm to estimate the joint probability of a fact existing giving the rules.
+We then use the K-hop algorithm to estimate the joint probability of a fact existing giving the rules.
+
 
 
 %\subsubsection{Natural Language Interface}
@@ -88,12 +89,13 @@ Describe the purpose translation of natural language questions queries.
 Add the auto complete for previous questions.
 
 
-\begin{lstlisting}[language=Python,frame=single,numbers=left,label=probqa-algo,caption={Algorithm for obtaining the information}]
-def answer(q):
-  t = {`q' : q,
-    `s': SEMPRE.toLogicalForm(q)}
-  t['a'] = SEMPRE.toSPARQL(t[`s'])
+\begin{lstlisting}[language=Python,basicstyle=\small,showstringspaces=false,mathescape=true,frame=single,numbers=left,label=probqa-algo,caption={Algorithm for obtaining the information}]
+def answer (q):
+  t ={`q': q,
+      `s': SEMPRE.toLogicalForm (q) }
+  t[`a'] = SEMPRE.toSPARQL (t[`s'])
   # Do fact search
+  t['$\alpha$'] = 
   # Evaluate query
   # Link probabilities
   return t
