@@ -67,16 +67,17 @@ We evaluate the SPARQL query over \(\mathcal{D}\) to obtain an answer \( \alpha 
 For each triples in \( t^\alpha_{s(q)} \) we perform a look up in \(\mathcal{D}\).
 If there is an exact match, the triple is mapped to a score of 1.
 If there is no exact match in \(\mathcal{D}\), we estimate the probability of the triple appearing using a straight-forward application
-If found, we assign the triple to a value that corresponds to the product of a normalized IDF-like weight for each partial match.
+%If found, we assign the triple to a value that corresponds to the product of a normalized IDF-like weight for each partial match.
 The intuition behind this weighting is that if a fact does not exist we would like to compute the weight that corresponds to the possibility that the facts could exist.
 An equation representing this value is as follows,
 
-\[
+\begin{equation}
+  \label{eq:probqa-weight}
   \omega(s,p,o) = \begin{cases}
     1 & \mbox{if } exists(\langle s,p,o \rangle) \\ 
-    \max( \omega(o,s,p), P(s,p,o)) & \mbox{otherwise,}
+    \max( \omega(o,p,s), P(s,p,o)) & \mbox{otherwise,}
   \end{cases}
-\]
+\end{equation}
 
 where \( P(s,p,o) = P(s|p,o)  P(p|o)  P(o) \).
 
@@ -94,10 +95,14 @@ def answer (q):
   t ={`q': q,
       `s': SEMPRE.toLogicalForm (q) }
   t[`a'] = SEMPRE.toSPARQL (t[`s'])
+  execute ($\mathcal{D}$, t) # Evaluate query
   # Do fact search
-  t['$\alpha$'] = 
-  # Evaluate query
-  # Link probabilities
+  t['$\alpha$'] = findMatches ($\mathcal{D}$, t) 
+  t['$\omega$'] = evaluateTriples ($\mathcal{D}$, t) # Equation~\ref{eq:probqa-weight}
+  t['khop'] = kHop ($\mathcal{D}$, t['$\alpha$'])
+
+  # TODO Perform a weighted combination of kHop and $\omega$
+
   return t
 
 \end{lstlisting}
@@ -109,6 +114,7 @@ def answer (q):
 Describe how facts are searched using the database.
 Describe how results are ranked.
 Describe how new results are discovered.
+Give algorithm, describe how blank nodes are compressed and other fact cleaning tasks.
 
 %\subsubsection{Graph Exploring}
 Describe D3 visualization of graph and rule display
@@ -117,22 +123,20 @@ Describe user selecting facts
 Describe users removing facts
 
 
-\subsection{Logic}
+\subsection{K-Hop}
 \label{sec:probqa-inference}
-Describe the translation of NL-to-queries using templates (quepy) and also sempre.
+Given that we have a set of matching/partially matching facts, give an explanation of how values from the khop algorithm are evaluated.
 
-Describe how rankings are computed from queries.
-SEMPRE Returns probabilities, Quepy gives a 0 or 1 probability.
 We compare the fact probabilities to the sempre results.
 
 \subsubsection{Knowledge Base}
 
-Desscribe the PostgreSQL database and the other serices running on servers.
+Desscribe the PostgreSQL database and the other services running on servers.
 Describe the tables 
 Describe the functions that are called
 Describe the parallelism
 
-The system is loaded with docker, a system container, so any modifications by demo can be quickly rolled back to the intial state.
+The system is loaded with docker, a system container, so any modifications by demo can be quickly rolled back to the initial state.
 
 
 
