@@ -1,0 +1,13 @@
+
+
+I created this project using the following maven command
+
+    mvn archetype:generate -DgroupId=edu.ufl.cise.dsr -DartifactId=probqa -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+
+Run example code to extract the triples from a table
+
+    mvn compile
+    mvn exec:java -Dexec.mainClass="edu.ufl.cise.dsr.App"
+
+
