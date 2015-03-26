@@ -8,16 +8,40 @@ In this subsection we describe the Freebase data set and how we obtain the rules
 
 \subsection{Markov Logic Networks}
 
-\subsubsection{Rule Generation}
+Markov Logic Networks (MLNs) are the standard method of modeling uncertainty.
+MLNs are mare up of a weighted first-order formulae of the form \(\{F_i, W_i\}\),
+where \(F_i\) is a logical expression and \(W_i\) is a weight
+specifying how likely it is that the formula is true.
+
+For example, the MLN clauses 
+\begin{enumerate}
+  \item[] \(0.96\) bornInState(Obama, Hawaii)
+  \item[] \(1.40\) \( \forall x \in Person, \forall y \in State, \forall z \in Country : \\
+     bornInState(x,y) \cap isStateOf(y,z) \rightarrow bornInCountry(x, z)\)
+\end{enumerate}
+first, state a face that Obama was born in the state of Hawaii.
+The second formulate is an inference rule that states that if a person \(x\) is born in a state \(y\), and a state \(y\) is in a part of a country \(z\),
+then that person \(x\) is born in the country \(z\).
+These formula do not necessarily apply,
+the weights of 0.96 and 1.40 specify the strength of the formula; stronger rules have a lower chance of being violated.
+Deterministic rules, or rules that can never be violated are given an infinite weights of $\inf$.
 
 
 \subsubsection{Grounding}
 
+MLNs are a template generating ground factor graphs.
+A factor graph is a set of factors \(\Phi = \{ \phi_1, \ldots, \phi_{|\Phi|} \} \),
+where each factor \(\phi_i\) is a function \(\phi_i (\mathbf{X}_i)\) over a
+vector of random variables \(\mathbf{X}_i\).
+\ceg{add figure of ground factor graph}
+
 \cite{chen2014knowledge}
+
+\subsubsection{Rule Generation}
+
 
 
 \subsubsection{Inference}
-
 
 
 
