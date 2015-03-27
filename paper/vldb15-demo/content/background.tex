@@ -1,10 +1,16 @@
 
 \section{Background}
 
-In this section, we describe the in-database incremental probabilistic inference system.
+In this section, we give the necessary background from the probabilitic knowledge base backed question answering system.
+We first describe the set of data sets that underly this work.
+We then give a brief description of Markov Logic Networks followed by our definition of a probabilitic knowledgebase.
 
 \subsection{Data Set}
-In this subsection we describe the Freebase data set and how we obtain the rules for use with the Khop method.
+Describe Freebase KB.
+
+Describe Reverb KB.
+
+Describe NELL.
 
 \subsection{Markov Logic Networks}
 
@@ -13,13 +19,19 @@ MLNs are mare up of a weighted first-order formulae of the form \(\{F_i, W_i\}\)
 where \(F_i\) is a logical expression and \(W_i\) is a weight
 specifying how likely it is that the formula is true.
 
-For example, the MLN clauses 
-\begin{enumerate}
-  \item[] \(0.96\) bornInState(Obama, Hawaii)
-  \item[] \(1.40\) \( \forall x \in Person, \forall y \in State, \forall z \in Country : \\
-     bornInState(x,y) \cap isStateOf(y,z) \rightarrow bornInCountry(x, z)\)
-\end{enumerate}
-first, state a face that Obama was born in the state of Hawaii.
+For example, the MLN clauses below state two different sets of information.
+
+%\vspace{-1em}
+%\begin{table}[h]
+\begin{tabular}{l l}
+  \(0.96\) & bornInState (Obama, Hawaii) \\
+  \(1.40\) & \( \forall x \in Person, \forall y \in State, \forall z \in Country: \) \\
+           & \(bornState(x,y) \wedge isState(y,z) \rightarrow bornCountry(x, z)\)
+\end{tabular}
+%\end{table}
+%\vspace{-1em}
+
+The first clause states that that Obama was born in the state of Hawaii.
 The second formulate is an inference rule that states that if a person \(x\) is born in a state \(y\), and a state \(y\) is in a part of a country \(z\),
 then that person \(x\) is born in the country \(z\).
 These formula do not necessarily apply,
@@ -33,15 +45,63 @@ MLNs are a template generating ground factor graphs.
 A factor graph is a set of factors \(\Phi = \{ \phi_1, \ldots, \phi_{|\Phi|} \} \),
 where each factor \(\phi_i\) is a function \(\phi_i (\mathbf{X}_i)\) over a
 vector of random variables \(\mathbf{X}_i\).
-\ceg{add figure of ground factor graph}
+\ceg{Maybe add figure of ground factor graph}
 
-\cite{chen2014knowledge}
+We use the term grounding to refer to the processes of creating the factor graph from an
+MLN and a set of clauses.
+Each node in the factor graph is a ground atom and has a boolean variable that represents its truth value.
+We an perform the grounding step inside the database using a simple series of database queries~\cite{chen2014knowledge}.
 
-\subsubsection{Rule Generation}
+For each possible grounding of formula \(F_i\) we create a ground factor
+\(\phi_i(\mathbf{X}_i)\) with a value of 1 if the grounding is true, otherwise
+\(e^{W_i}\). The marginal probability distribution of a set of grounded atoms \(\mathbf{X}\) is defined as
+\begin{equation}
+\label{eq:probqa-marginal}
+P(\mathbf{X} = x) = \frac{1}{Z} \prod_i \phi_i (\mathbf{X}_i) = \frac{1}{Z} \text{exp} \left( \sum_i W_i n_i(x) \right),
+\end{equation}
+where \(n_i(x)\) is the number of true groundings of rule \(F_i\) in x, \(W_i\) is its weight, and \(Z\) is the partition function.
+This probability gives use the probabilitity of one particular state of a knowledge base.
+
+
+%\subsubsection{Rule Generation}
 
 
 
-\subsubsection{Inference}
+%\subsubsection{Inference}
+
+
+\subsection{Probabilitic Knowledge Bases}
+
+We use a definition of probabilistic knowledge bases derived in previous work~\cite{chen2014knowledge}.
+A probabilistic knowledge base is a 5-tuples \(\Gamma = (\mathcal{E}, \mathcal{C}, \mathcal{R}, \Pi, \mathcal{L})\), where
+\begin{enumerate}[leftmargin=0cm,itemindent=.5cm,labelwidth=\itemindent,labelsep=0cm,align=left]
+\vspace{-1em}
+\item \(\mathcal{E} = \{ e_1, \ldots, e_{|\mathcal{E}|} \} \) is the set of entities.
+Each entitie \( e \in \mathcal{E} \) refers to a real-world object.
+
+\vspace{-1em}
+\item \(\mathcal{C} = \{ c_1, \ldots, c_{|\mathcal{C}|} \} \) is the set of classes (or types).
+Each class \( C \in \mathcal{C} \) maybe be a subset of \(\mathcal{E} : C \subseteq \mathcal{E}\), or an unknown class.
+
+\vspace{-1em}
+\item \(\mathcal{R} = \{ R_1, \ldots, R_{|\mathcal{R}|} \} \) is the set of relations.
+Each \(R \in \mathcal{R} \) defines a binary relation on \(C_i, C_j \in \mathcal{C}: R: \subseteq C_i \times C_j\).
+We call \(C_i, C_j\) the domain and range of \(R\) and use \(R(C_i,C_j)\) to denote the relation and its domain and range.
+
+
+\vspace{-1em}
+\item \(\Pi = \{(r_1, w_1), \ldots, (r_{|\Pi|}, w_{\Pi|})\} \) is a set of weighted facts.
+For each \( (r,w) \in \Pi\), \(r\) is a tuple  \((R,x,y)\),
+where \(R(C_i,C_j) \in \mathcal{R}, x \in C_i \in C, y \in C_j \in C\), and \((x,y) \in R\);
+\(w \in \mathbb{R}\) is a weight indicating how likely it is that \(r\) is true. 
+
+\vspace{-1em}
+\item \(\mathcal{L} = \{(F_1,W_1),\ldots, (F_{|\mathcal{L}|}, W_{|\mathcal{L}|}) \} \) is a set of weighted rules.
+For each \((F, W) \in \mathcal{L} \), \(F\) is a first-order logic clause, and \(W \in \mathbb{R} \) us a weight indicating how likley the formula \(F\) holds. 
+
+\end{enumerate}
+
+
 
 
 

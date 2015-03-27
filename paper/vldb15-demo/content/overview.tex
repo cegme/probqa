@@ -101,23 +101,22 @@ def answer (q):
 \end{lstlisting}
 
 
-%\begin{algorithm}[ht]
-%  \caption{Sequential Gibbs Sampling}
-%  \label{alg:gibbs}
-%  \begin{algorithmic}[1]
-%    \WHILE {done = false}
-%    ¦ ¦ ¦ ¦\FOR{i $\leftarrow$ 0 $\KwTo$ numChains}
-%    ¦ ¦ ¦ ¦ ¦ \STATE performGibbsStep(i)
-%    ¦ ¦ ¦ ¦\ENDFOR
-%    ¦ ¦ ¦ ¦ ¦ ¦\IF{burnIn}
-%%    ¦ ¦ ¦ ¦ ¦ ¦ ¦ \STATE burnConvergeTest-$>$appendValues(truthValues)
-%    ¦ ¦ ¦ ¦ ¦ ¦ ¦ \STATE burnIn $\leftarrow$ checkConvergeAll(burnConvergeTests)
-%    ¦ ¦ ¦ ¦ ¦ ¦\ELSE \STATE convergeTest-$>$appendValues(truthValues)
-%    ¦ ¦ ¦ ¦ ¦ ¦ ¦ ¦ ¦\STATE done $\leftarrow$ checkConvergeAtLeast(convergeTests)
-%    ¦ ¦ ¦ ¦ ¦ ¦\ENDIF
-%    \ENDWHILE
-%  \end{algorithmic}
-%\end{algorithm}
+
+    %\KwData {$q$}
+
+\begin{algorithm}
+  \caption{Question answering algorithm.}
+  \label{alg:probqa-mainalgo}
+  \begin{algorithmic}[1]
+    \Procedure{GetAnswer}{q}
+    \State$t \gets \{\mathit{q}: q\}$
+    \State$t \gets \{\mathit{s}: \text{toLogicalForm}(q) \}$
+    \State$t \gets \{\mathit{a}: \text{toSPARQL}(t.\mathit{s}) \}$
+    \State$t \gets \{\mathit{res}: \text{execute}(\mathcal{D}, t.\mathit{a}) \}$
+    % Add the actuall code for finding matches and evaluating triples
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
 
 
 
