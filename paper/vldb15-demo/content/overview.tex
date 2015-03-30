@@ -2,8 +2,9 @@
 \section{System Overview}
 
 This demonstration describes a question answering systems that leverages a probabilistic knowledge base.
-To introduce this section, we first give a walkthrough of how a question is evaluated.
-We then give a detailed description of each component involved in question answering computation.
+To introduce this section, we first give a walk through of how a question is evaluated.
+We give a detailed description of how answers and truthfulness is generated.
+We then discuss the algorithm used to extract the underlying facts of the questions.
 
 
 
@@ -15,6 +16,8 @@ We then give a detailed description of each component involved in question answe
 %We also describe the probabilistic knowledge base driving the system.
 %We describe its schema and the integrated functions.
 
+\subsection{Walk through}
+\label{sec:probqa-walkthrough}
 A user user first enters a question \(q\). 
 We then leverage the SEMPRE system to translate the question into SPARQL, the de facto language for querying RDF data stores.
 The  SQL-like formalism of SPARQL queries produces a set of subgraph expressions as triples.
@@ -24,14 +27,14 @@ To obtain the \(t_{s(q)}\), we can evaluate the SPARQL query and materialize eac
 We can use \(t_{s(q)}\) to search our probabilistic knowledge base of facts to obtain the closest matching facts.
 Each fact \(f \in \mathcal{F}\) is of the form \(R(A,B)\) and a triple \(t_{s(q)}\) is equivalent to a fact \(f\) when 
 \( (s,p,o) = (A,R,B) \).
-Given the equivalent facts, we use our k-hop algorithm to determine the joint probability that each fact is correct.
+Given the equivalent facts, we use an in-database inference algorithm to determine the joint probability that each fact is correct.
 This probability is a truthfulness score that can be paired with each answer to the question.
 
-In the next few sub-sections we describe each part of the process. We start
-with the interface where the user can enter natural language questions and a
-description of how SEMPRE processes the question (Section~\ref{sec:probqa-interface}).
-Next, we describe how we perform lookups for candidate facts (Section~\ref{sec:probqa-search}).
-We then define our method to derive the joint probability distribution (Section~\ref{sec:probqa-inference}).
+%In the next few sub-sections we describe each part of the process. We start
+%with the interface where the user can enter natural language questions and a
+%description of how SEMPRE processes the question (Section~\ref{sec:probqa-interface}).
+%Next, we describe how we perform lookups for candidate facts (Section~\ref{sec:probqa-search}).
+%We then define our method to derive the joint probability distribution (Section~\ref{sec:probqa-inference}).
 
 
 %Our goal is to extract the facts that support the answer to a user's question.
@@ -40,24 +43,8 @@ We then define our method to derive the joint probability distribution (Section~
 %The algorithm for this is below...
 
 
-\begin{figure}
-%\includegraphics[width=\columnwidth,clip=true,trim=0cm 4cm 0cm 10cm]{images/qaarchitecture.png}
-\centering
-\includegraphics[width=0.8\columnwidth]{images/probqa-architecture.png}
-\caption{Question answering system architecture.}
-\label{fig:qaarchitecture}
-\end{figure}
-
-
-\subsection{Interface}
+\subsection{Truthfulness}
 \label{sec:probqa-interface}
-
-%The framework is developed using AngularJS\@ to completely compatible with desktop and mobile devices.
-The interface allows users to make queries using three different modalities.
-Users will be able to enter natural language questions, search through the set of existing facts, and use a graph to explore connections between graphs.
-New probabilistic facts and rules can also be added to the system through the interface.
-Users can also remove or alter the existing facts and rerun queries.
-The status of queries and the underlying processes are displayed on the main interface.
 
 When a user enters a natural language utterance \(q\), we use the SEMPRE 2.0 system to transform the utterance to a logical form~\cite{berant2013freebase,berant2013semantic}.
 We then translate the logical form to SPARQL for execution over a knowledge base \(\mathcal{D}\);
@@ -82,25 +69,24 @@ An equation representing this value is as follows,
 
 where \( P(s,p,o) = P(s|p,o)  P(p|o)  P(o) \).
 
-We then use the K-hop algorithm to estimate the joint probability of a fact existing given the rules.
+We then estimate the joint probability of a fact existing given the rules.
 
 
-\begin{lstlisting}[language=Python,basicstyle=\small,showstringspaces=false,mathescape=true,frame=single,numbers=left,label=probqa-algo,caption={Algorithm for obtaining the information}]
-def answer (q):
-  t ={`q': q,
-      `s': SEMPRE.toLogicalForm (q) }
-  t[`a'] = SEMPRE.toSPARQL (t[`s'])
-  execute ($\mathcal{D}$, t) # Evaluate query
-  # Do fact search
-  t['$\alpha$'] = findMatches ($\mathcal{D}$, t) 
-  t['$\omega$'] = evaluateTriples ($\mathcal{D}$, t) # Equation~\ref{eq:probqa-weight}
-  t['khop'] = kHop ($\mathcal{D}$, t['$\alpha$'])
+%\begin{lstlisting}[language=Python,basicstyle=\small,showstringspaces=false,mathescape=true,frame=single,numbers=left,label=probqa-algo,caption={Algorithm for obtaining the information}]
+%def answer (q):
+%  t ={`q': q,
+%      `s': SEMPRE.toLogicalForm (q) }
+%  t[`a'] = SEMPRE.toSPARQL (t[`s'])
+%  execute ($\mathcal{D}$, t) # Evaluate query
+%  # Do fact search
+%  t['$\alpha$'] = findMatches ($\mathcal{D}$, t) 
+%  t['$\omega$'] = evaluateTriples ($\mathcal{D}$, t) # Equation~\ref{eq:probqa-weight}
+%  t['khop'] = kHop ($\mathcal{D}$, t['$\alpha$'])
 
-  # TODO Perform a weighted combination of kHop and $\omega$
+%  # TODO Perform a weighted combination of kHop and $\omega$
 
-  return t
-
-\end{lstlisting}
+%  return t
+%\end{lstlisting}
 
 
 
@@ -123,6 +109,15 @@ def answer (q):
 
 
 
+
+\subsection{Probabilistic Inference}
+\label{sec:probqa-inference}
+\ceg{Quick description of inference computation.}
+Given that we have a set of matching/partially matching facts, give an
+explanation of how joint inference is evaluated.
+
+
+
 \subsection{Fact Search}
 \label{sec:probqa-search}
 
@@ -132,31 +127,34 @@ database to search for the top triples that are similar to \(f\).
 Some sets of facts contain blank nodes or expect lists or sets of information.
 For example, the utterance ``\texttt{Who are Justin beiber's siblings?}'' produces 
 a SPARQL query that contains the following subtriples: (1)  
+
+\begin{verbatim}
+StatementPattern
+  Var (name=_const-bf4ff051-uri, value=http://rdf.freebase.com/ns/en.justin_bieber, anonymous)
+  Var (name=_const-19bbcf65-uri, value=http://rdf.freebase.com/ns/people.person.sibling_s, anonymous)
+  Var (name=x1)
+
+StatementPattern
+  Var (name=x1)
+  Var (name=_const-150646f1-uri, value=http://rdf.freebase.com/ns/people.sibling_relationship.sibling, anonymous)
+  Var (name=x2)
+
+StatementPattern
+  Var (name=x2)
+  Var (name=_const-9f556c3d-uri, value=http://rdf.freebase.com/ns/type.object.name, anonymous)
+  Var (name=x2name)
+\end{verbatim}
+\ceg{Write out meaning of extracted triples}
+
+
+
+
 %Describe how results are ranked.
 %Describe how new results are discovered.
 %Give algorithm, describe how blank nodes are compressed and other fact cleaning tasks.
 
 %\subsubsection{Graph Exploring}
-Describe D3 visualization of graph and rule display
-Describe user interaction with graph
-Describe user selecting facts
-Describe users removing facts
 
-
-\subsection{Probabilistic Inference}
-\label{sec:probqa-inference}
-Given that we have a set of matching/partially matching facts, give an explanation of how values from the khop algorithm are evaluated.
-
-We compare the fact probabilities to the sempre results.
-
-\subsubsection{Knowledge Base}
-
-Describe the PostgreSQL database and the other services running on servers.
-Describe the tables 
-Describe the functions that are called
-Describe the parallelism
-
-The system is loaded with docker, a system container, so any modifications by demo can be quickly rolled back to the initial state.
 
 
 
