@@ -54,7 +54,7 @@ For example, the MLN clauses below state two different sets of information.
 
 %\vspace{-1em}
 %\begin{table}[h]
-\begin{tabular}{l l}
+\noindent\begin{tabular}{l l}
   \(0.96\) & bornInState (Obama, Hawaii) \\
   \(1.40\) & \( \forall x \in Person, \forall y \in State, \forall z \in Country: \) \\
            & \(bornState(x,y) \wedge isState(y,z) \rightarrow bornCountry(x, z)\)
@@ -76,7 +76,8 @@ MLNs are a template generating ground factor graphs.
 A factor graph is a set of factors \(\Phi = \{ \phi_1, \ldots, \phi_{|\Phi|} \} \),
 where each factor \(\phi_i\) is a function \(\phi_i (\mathbf{X}_i)\) over a
 vector of random variables \(\mathbf{X}_i\).
-\ceg{Maybe add figure of ground factor graph}
+%\ceg{Maybe add figure of ground factor graph}
+The random variables correspond to facts (\(F_i\)) and factors a correspond to rules.
 
 We use the term grounding to refer to the processes of creating the factor graph from an
 MLN and a set of clauses.
