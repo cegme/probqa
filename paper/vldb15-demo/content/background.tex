@@ -6,6 +6,7 @@ We first describe the set of data sets that underly this work.
 We then give a brief description of Markov Logic Networks followed by our definition of a probabilitic knowledgebase.
 
 \subsection{Data Set}
+\label{sec:probqa-dataset}
 
 In this demo, we use Freebase, Reverb, and NELL as the underlying knowledge bases.
 These knowledge bases store collection of facts as (subject, predicate, object) triples,
@@ -90,7 +91,7 @@ For each possible grounding of formula \(F_i\) we create a ground factor
 P(\mathbf{X} = x) = \frac{1}{Z} \prod_i \phi_i (\mathbf{X}_i) = \frac{1}{Z} \text{exp} \left( \sum_i W_i n_i(x) \right),
 \end{equation}
 where \(n_i(x)\) is the number of true groundings of rule \(F_i\) in x, \(W_i\) is its weight, and \(Z\) is the partition function.
-This probability gives use the probabilitity of one particular state of a knowledge base.
+This probability gives use the probability of one particular state of a knowledge base.
 
 
 %\subsubsection{Rule Generation}
@@ -100,7 +101,7 @@ This probability gives use the probabilitity of one particular state of a knowle
 %\subsubsection{Inference}
 
 
-\subsection{Probabilitic Knowledge Bases}
+\subsection{Probabilistic Knowledge Bases}
 
 We use a definition of probabilistic knowledge bases derived in previous work~\cite{chen2014knowledge}.
 A probabilistic knowledge base is a 5-tuples \(\Gamma = (\mathcal{E}, \mathcal{C}, \mathcal{R}, \Pi, \mathcal{L})\), where
@@ -151,8 +152,9 @@ The translating to a logical form, such as a (\(\lambda\)-DCS), allows the
 semantics to be executed producing a denotation, or an answer to the question.
 The \(\lambda\)-DCS can be translated to a SPARQL query for execution over 
 freebase of a similar knowledge base where it can be evaluated.
+In the following sections, we describe how the questions answering system uses
+facts from the probabilistic knowledge base to derive truthfulness to each
+candidate answer.
 
-
-\ceg{How does the QA tie into the formal definition of the KB?}
 
 

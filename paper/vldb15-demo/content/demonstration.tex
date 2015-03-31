@@ -1,5 +1,5 @@
 
-\section{Demonstration}
+\section{Demonstration Plan}
 
 \begin{figure*}
 \centering
@@ -8,35 +8,43 @@
 \label{fig:probqa-pipeline}
 \end{figure*}
 
-%The framework is developed using AngularJS\@ to completely compatible with desktop and mobile devices.
-The interface allows users to make queries using three different modalities.
-Users will be able to enter natural language questions, search through the set of existing facts, and use a graph to explore connections between graphs.
+
+During the demo, attendees will be given the work flow shown in Figure~\ref{fig:probqa-pipeline}.
+An attendee may provide a natural language question to the interface of retrieve one of the pre-seeded utterances.
+This question is then translated to the \(\lambda\)-DCS and SPARQL using the SEMPRE system.
+The user is then shows the answer to the question, as computed by the SPARQL
+query and also the truthfulness result of the answer.
+
+Alternatively, an attendee may interact with the knowledge base through a graphical interface.
+Attendees will be able to search through the set of existing facts or use a graph to explore connections between graphs.
 New probabilistic facts and rules can also be added to the system through the interface.
-Users can also remove or alter the existing facts and rerun queries.
+Users can also remove or alter the existing facts and rerun queries or answer more questions.
 The status of queries and the underlying processes are displayed on the main interface.
 
 
-We can visualize the ranking of candidates with each candidates truthfulness value.
-
-Describe D3 visualization of graph and rule display
-Describe user interaction with graph
-Describe user selecting facts
-Describe users removing facts
 
 
-Features
-  Add the auto complete for previous questions.
+%We can visualize the ranking of candidates with each candidates truthfulness value.
 
-Describe how users will be able to alter parameters.
-Add figure of the pipeline process and the user interface.
+%Describe D3 visualization of graph and rule display
+%Describe user interaction with graph
+%Describe user selecting facts
+%Describe users removing facts
+
+%Features
+%  Add the auto complete for previous questions.
+
+%Describe how users will be able to alter parameters.
 
 
-Describe the PostgreSQL database and the other services running on servers.
-Describe the tables 
-Describe the functions that are called
-Describe the parallelism
-
-The system is loaded with docker, a system container, so any modifications by demo can be quickly rolled back to the initial state.
+The demo application is developed using AngularJS\@ to be completely compatible with desktop and mobile devices.
+We also loaded the data sets described in Section~\ref{sec:probqa-dataset} into a PostgreSQL DBMS\@.
+We trained SEMPRE models for question answering on each of the three knowledge bases.
+We translate the SPARQL queries to relational format using OpenRDF and Apache Jena SDB\@.
+%Describe the tables 
+%Describe the functions that are called
+%Describe the parallelism
+We install the database and web server on docker system container, so any modifications by demo can be quickly rolled back to the initial state.
 
 
 

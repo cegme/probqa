@@ -68,7 +68,6 @@ An equation representing this value is as follows,
 \end{equation}
 
 where \( P(s,p,o) = P(s|p,o)  P(p|o)  P(o) \).
-
 We then estimate the joint probability of a fact existing given the rules.
 
 
@@ -110,11 +109,11 @@ We then estimate the joint probability of a fact existing given the rules.
 
 
 
-\subsection{Probabilistic Inference}
-\label{sec:probqa-inference}
-\ceg{Quick description of inference computation.}
-Given that we have a set of matching/partially matching facts, give an
-explanation of how joint inference is evaluated.
+%\subsection{Probabilistic Inference}
+%\label{sec:probqa-inference}
+%\ceg{Quick description of inference computation.}
+%Given that we have a set of matching/partially matching facts, give an
+%explanation of how joint inference is evaluated.
 
 
 
@@ -135,7 +134,7 @@ a SPARQL query that contains the following triples:
 
 The answers to the query are \texttt{Jazmyn\_Bieber} and \texttt{Jaxon\_Bieber}.
 The extracted query contains one answer variable, \texttt{?x2}, and one intermediate node, \texttt{?x1}.
-For each answer node, as shown in Algorithm~\ref{}, we perform a depth first
+For each answer node we perform a depth first
 search to evaluate the probability of each set of triples that can construct
 the full subgraph.
 The maximum probability set of triples is returned as the trustworthiness of the answer.
@@ -158,8 +157,6 @@ StatementPattern
   Var (name=x2name)
 \end{verbatim}
 }
-
-\ceg{Add the recursive algorithm}
 
 \begin{algorithm}
 \caption{Algorithm for discovering the truthfulness of the answer.}
