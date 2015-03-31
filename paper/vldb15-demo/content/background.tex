@@ -1,23 +1,23 @@
 
 \section{Background}
 
-In this section, we give the necessary background from the probabilitic knowledge base backed question answering system.
+In this section, we give the necessary background from the probabilistic knowledge base backed question answering system.
 We first describe the set of data sets that underly this work.
-We then give a brief description of Markov Logic Networks followed by our definition of a probabilitic knowledgebase.
+We then give a brief description of Markov Logic Networks followed by our definition of a probabilistic knowledgebase.
 
 \subsection{Data Set}
 \label{sec:probqa-dataset}
 
 In this demo, we use Freebase, Reverb, and NELL as the underlying knowledge bases.
 These knowledge bases store collection of facts as (subject, predicate, object) triples,
-representing facts related to well-known entities (people, places, and things). They differ
-in scale, schema and construction methods.
+representing facts related to real-world entities (people, places, and things).
+Each knowledge base differs in scale, schema and construction methods.
 
 \textbf{Freebase.} Freebase is a web-scale, human-crafted, high precision knowledge base of
 well-known topics (entities) and facts~\cite{bollacker2008freebase}.
 As of current writing, it contains 47.5 million entities
 and 2.9 billion facts, spanning a variety of areas including People, Sports, Music, Internet,
-Books, etc, organized into domains. The Freebase KB is publicly accessible as rdf triples.
+Books, etc, organized into domains. The Freebase KB is publicly accessible as RDF triples.
 
 \textbf{ReVerb.} ReVerb is an automatic knowledge base construction system
 that extracts entities and facts from natural language text~\cite{fader2011identifying}.
@@ -26,10 +26,12 @@ The extracted tuples are publicly available, and we use
 its ClueWeb extractions, which contains 14.7 million facts, annotated by their confidence
 and source URLs.
 
-\textbf{NELL.} NELL is a never-ending knowledge extraction system~\cite{mitchell2015never}. It extracts facts and updates
-its knowledge base every day. As of current writing, it has extracted 84.6 million facts, of
-which 2.2 million are believed to have high confidence. Like ReVerb, each fact is annotated
-by its confidence and source URLs. It also contains information on which extraction
+\textbf{NELL.} NELL is a never-ending knowledge extraction system~\cite{mitchell2015never}.
+It extracts facts and updates its knowledge base every day.
+As of current writing, it has extracted 84.6 million facts, of
+which 2.2 million are believed to have high confidence.
+Like ReVerb, each fact is annotated by its confidence and source URLs.
+It also contains information on which extraction
 algorithms are used to extract each fact.
 
 In both ReVerb and NELL KBs, recent works have tried to mine \emph{first-order inference rules}.
@@ -39,7 +41,7 @@ An inference rule states causal relationships among facts, for example, we have
 \]
 This rule states that if a person \(x\) was born in location \(y\), and location \(y\)
 is located within another location \(z\), then person \(x\) is also born in location \(z\).
-The Sherlock-Holmes system mines 30,912 inference rules from ReVerb, and NELL also
+The Sherlock-Holmes system~\cite{schoenmackers2010learning} mines 30,912 inference rules from ReVerb, and NELL also
 has 2 thousand rules with an inference engine as one of its extraction component.
 
 
@@ -65,9 +67,9 @@ For example, the MLN clauses below state two different sets of information.
 The first clause states that that Obama was born in the state of Hawaii.
 The second formulate is an inference rule that states that if a person \(x\) is born in a state \(y\), and a state \(y\) is in a part of a country \(z\),
 then that person \(x\) is born in the country \(z\).
-These formula do not necessarily apply,
-the weights of 0.96 and 1.40 specify the strength of the formula; stronger rules have a lower chance of being violated.
-Deterministic rules, or rules that can never be violated are given an infinite weights of $\inf$.
+These formula do not necessitate that the formula apply.
+The weights of 0.96 and 1.40 specify the strength of the formula; stronger rules have a lower chance of being violated.
+Deterministic rules, or rules that can never be violated are given an infinite weights of \(\infty\).
 
 
 \subsubsection{Grounding}
@@ -139,23 +141,24 @@ holds.
 \subsubsection{Question Answering}
 
 To answer questions, a mapping must be developed between a known
-natural language utterance to subset of all possible facts to present an answer.
+natural language utterance and a subset of all possible facts.
 We assume that the knowledge base contains that complete set of facts necessary
 to find the answer to the question.
 Additionally, in order to quantify the truthfulness of each fact, it is
 important to enumerate the facts that support the final answer.
 
 
-In this work, we leverage a new system named SEMPRE which uses supervised
+In this work, we leverage a question answering system named SEMPRE which uses supervised
 learning of question answer pairs to create a Lambda Dependency-Based
 Compositional Semantics language (\(\lambda\)-DCS)~\cite{berant2013semantic}.
-The translating to a logical form, such as a (\(\lambda\)-DCS), allows the
-semantics to be executed producing a denotation, or an answer to the question.
+The translating to a logical form, such as a \(\lambda\)-DCS, allows the
+semantics to be executed and produce a denotation, or an answer to the utterance.
 The \(\lambda\)-DCS can be translated to a SPARQL query for execution over 
-freebase of a similar knowledge base where it can be evaluated.
-In the following sections, we describe how the questions answering system uses
-facts from the probabilistic knowledge base to derive truthfulness to each
-candidate answer.
+Freebase of a similar knowledge base where it can be evaluated.
+SEMPRE just needs to be provided training examples specific to each source answer.
+%In the following sections, we describe how the questions answering system uses
+%facts from the probabilistic knowledge base to derive truthfulness to each
+%candidate answer.
 
 
 
