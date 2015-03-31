@@ -92,19 +92,19 @@ We then estimate the joint probability of a fact existing given the rules.
 
     %\KwData {$q$}
 
-\begin{algorithm}
-  \caption{Question answering algorithm.}
-  \label{alg:probqa-mainalgo}
-  \begin{algorithmic}[1]
-    \Procedure{GetAnswer}{q}
-    \State$t \gets \{\mathit{q}: q\}$
-    \State$t \gets \{\mathit{s}: \text{toLogicalForm}(q) \}$
-    \State$t \gets \{\mathit{a}: \text{toSPARQL}(t.\mathit{s}) \}$
-    \State$t \gets \{\mathit{res}: \text{execute}(\mathcal{D}, t.\mathit{a}) \}$
-    % Add the actuall code for finding matches and evaluating triples
-    \EndProcedure
-  \end{algorithmic}
-\end{algorithm}
+%\begin{algorithm}
+  %\caption{Question answering algorithm \ceg{TODO: change this to the fact search algo}.}
+  %\label{alg:probqa-mainalgo}
+  %\begin{algorithmic}[1]
+    %\Procedure{GetAnswer}{q}
+    %\State$t \gets \{\mathit{q}: q\}$
+    %\State$t \gets \{\mathit{s}: \text{toLogicalForm}(q) \}$
+    %\State$t \gets \{\mathit{a}: \text{toSPARQL}(t.\mathit{s}) \}$
+    %\State$t \gets \{\mathit{res}: \text{execute}(\mathcal{D}, t.\mathit{a}) \}$
+    %% Add the actuall code for finding matches and evaluating triples
+    %\EndProcedure
+  %\end{algorithmic}
+%\end{algorithm}
 
 
 
@@ -125,9 +125,22 @@ explanation of how joint inference is evaluated.
 Given a candidate fact \(f\) of the form \(\langle s, p, o \rangle\), we use the
 database to search for the top triples that are similar to \(f\).
 Some sets of facts contain blank nodes or expect lists or sets of information.
-For example, the utterance ``\texttt{Who are Justin beiber's siblings?}'' produces 
-a SPARQL query that contains the following subtriples: (1)  
+For example, the utterance ``\texttt{Who are Justin Bieber's siblings?}'' produces 
+a SPARQL query that contains the following triples: 
+\begin{enumerate}
+\item[(1)] \(\langle\)\texttt{justin\_bieber, people.person.sibling\_s, ?x1}\(\rangle\)
+\item[(2)] \(\langle\)\texttt{?x1, people.sibling\_relationship.sibling, ?x2}\(\rangle\)
+\item[(3)] \(\langle\)\texttt{?x2, type.object.name, ?x2name}\(\rangle\)
+\end{enumerate}
 
+The answers to the query are \texttt{Jazmyn\_Bieber} and \texttt{Jaxon\_Bieber}.
+The extracted query contains one answer variable, \texttt{?x2}, and one intermediate node, \texttt{?x1}.
+For each answer node, as shown in Algorithm~\ref{}, we perform a depth first
+search to evaluate the probability of each set of triples that can construct
+the full subgraph.
+The maximum probability set of triples is returned as the trustworthiness of the answer.
+
+\eat{%
 \begin{verbatim}
 StatementPattern
   Var (name=_const-bf4ff051-uri, value=http://rdf.freebase.com/ns/en.justin_bieber, anonymous)
@@ -144,20 +157,39 @@ StatementPattern
   Var (name=_const-9f556c3d-uri, value=http://rdf.freebase.com/ns/type.object.name, anonymous)
   Var (name=x2name)
 \end{verbatim}
-\ceg{Write out meaning of extracted triples}
+}
 
+\ceg{Add the recursive algorithm}
 
+\begin{algorithm}
+\caption{Algorithm for discovering the truthfulness of the answer.}
+\label{alg:probqa-truthfulness}
+\begin{algorithmic}[1]
+\Procedure{TrustWorthiness}{$t_{s(q)}^\alpha, \mathcal{D}$} %\Comment{Candidate triples and Knowledge Base}
 
+\State $G \leftarrow \mathtt{CreateSubGraph}(t_{s(q)}^\alpha)$ \label{algo:line:createsubgraph}
+
+\State $Q \leftarrow \mathtt{AllPairs}(G, t_{s(q)}^\alpha)$ \Comment{Subgraphs that contain all facts} \label{algo:line:allpairs}
+
+\For {$\text{path } \textbf{in } Q$}  \label{algo:line:jointprob-start}
+  \State $S \leftarrow S \cup \mathtt{Prob}(\mathtt{Facts}(\text{path}))$ \Comment{Joint Probability of facts}
+\EndFor \label{algo:line:jointprob-end}
+
+\State \textbf{return} $\mathtt{max}(S)$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+Algorithm~\ref{alg:probqa-truthfulness} describes the algorithm for obtaining the truthfulness score.
+Given the evaluated triples, we first perform a topological sort to generate a subgraph containing all facts (Line~\ref{algo:line:createsubgraph}).
+Next, we find all possible facts in the data that satisfy the subgraph (Line~\ref{algo:line:allpairs}).
+We can then calculate the maximum joint probability of facts from each of the path (Lines~\ref{algo:line:jointprob-start} to~\ref{algo:line:jointprob-end}).
 
 %Describe how results are ranked.
 %Describe how new results are discovered.
 %Give algorithm, describe how blank nodes are compressed and other fact cleaning tasks.
 
 %\subsubsection{Graph Exploring}
-
-
-
-
 
 
 % See other examples: http://www.vldb.org/2014/program/papers/demo/
