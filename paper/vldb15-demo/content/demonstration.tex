@@ -10,9 +10,9 @@
 
 
 During the demo, attendees will be given the work flow shown in Figure~\ref{fig:probqa-pipeline}.
-An attendee may provide a natural language question to the interface of retrieve one of the pre-seeded utterances.
+An attendee may submit a natural language question to the interface of retrieve one of the pre-seeded utterances.
 This question is then translated to the \(\lambda\)-DCS and SPARQL using the SEMPRE system.
-The user is then shows the answer to the question, as computed by the SPARQL
+The user is then shown the answer to the question, as computed by the SPARQL
 query and also the truthfulness result of the answer.
 
 Alternatively, an attendee may interact with the knowledge base through a graphical interface.
@@ -38,8 +38,8 @@ The status of queries and the underlying processes are displayed on the main int
 
 
 The demo application is developed using AngularJS\@ to be completely compatible with desktop and mobile devices.
-We also loaded the data sets described in Section~\ref{sec:probqa-dataset} into a PostgreSQL DBMS\@.
-We trained SEMPRE models for question answering on each of the three knowledge bases.
+We also load the data sets described in Section~\ref{sec:probqa-dataset} into a PostgreSQL DBMS\@.
+We train SEMPRE models for question answering on each of the three knowledge bases.
 We translate the SPARQL queries to relational format using OpenRDF and Apache Jena SDB\@.
 %Describe the tables 
 %Describe the functions that are called
