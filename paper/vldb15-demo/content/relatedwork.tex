@@ -5,17 +5,15 @@
 Several existing research projects have aimed to extract answers from knowledge bases~\cite{yahya2012natural,yao2014information}.
 In this work, we leverage existing research to demonstrate the utility of probabilistic knowledge bases.
 Previous methods rank answers by their compatibility to the question.
-This works additionally computes the joint probability of the underlying facts providing an additional dimension to the answer.
-Previous works only use deterministic rules they so they are not able to extract a similar trustworthiness score.
+We additionally compute the joint probability of the underlying facts, providing an additional dimension to the answer.
+Furthermore, previous works only use deterministic rules, so they are not able to extract a similar trustworthiness score.
 
 % http://nakashole.com/papers/2012-vlds-urdf.pdf
 Nakashole and Mitchell~\cite{nakashole2014languageaware} describe a system,
-called FactChecker that discovers whether facts are believable by observing the
+FactChecker, that discovers whether facts are believable by observing the
 semantics and considering alternatives. 
-In this work, we only uses the knowledge base and have no access to the source
+In this work, we only use knowledge bases and have no access to the source
 knowledge accuracy of the extractions and context.
 Such a constraint also separates this work from knowledge bases such as
 Knowledge Vault~\cite{dong2014knowledge} that require source information in
 response to a user search.
-
-
