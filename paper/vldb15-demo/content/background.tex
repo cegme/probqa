@@ -69,7 +69,7 @@ The weights of 0.96 and 1.40 specify the strength of the formula; stronger rules
 Deterministic rules, or rules that can never be violated are given an infinite weights of \(\infty\).
 
 
-\subsubsection{Grounding}
+\subsubsection{Grounding and Inference}
 
 MLNs are a template generating ground factor graphs.
 A factor graph is a set of factors \(\Phi = \{ \phi_1, \ldots, \phi_{|\Phi|} \} \),
@@ -136,7 +136,7 @@ To answer questions, a mapping must be developed between a known
 natural language utterance and a subset of all possible facts.
 We assume that the knowledge base contains the complete set of facts necessary
 to find the answer to the question.
-Additionally, in order to quantify the truthfulness of each fact, it is
+Additionally, in order to quantify the confidence of each fact, it is
 important to enumerate the facts that support the final answer.
 
 

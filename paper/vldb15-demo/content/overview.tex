@@ -3,7 +3,7 @@
 
 This demonstration describes a question answering systems that leverages a probabilistic knowledge base.
 To introduce this section, we first give a walk through of how a question is evaluated.
-We give a detailed description of how answers and truthfulness is generated.
+We give a detailed description of how answers and confidence is generated.
 We then discuss the algorithm used to extract the underlying facts of the questions.
 
 
@@ -31,7 +31,7 @@ We use \(t_{s(q)}\) to search the probabilistic knowledge base to obtain the clo
 Each fact \(f \in \mathcal{F}\) is of the form \(R(A,B)\) and a triple \(t_{s(q)}\) is equivalent to a fact \(f\) when 
 \( (s,p,o) = (A,R,B) \).
 Given the equivalent facts, we use an in-database inference algorithm to determine the joint probability that each fact is correct.
-This probability is a truthfulness score that can be paired with each answer to the question.
+This probability is a confidence score that can be paired with each answer to the question.
 
 %In the next few sub-sections we describe each part of the process. We start
 %with the interface where the user can enter natural language questions and a
@@ -46,7 +46,7 @@ This probability is a truthfulness score that can be paired with each answer to 
 %The algorithm for this is below...
 
 
-\subsection{Truthfulness}
+\subsection{Answer Confidence}
 \label{sec:probqa-interface}
 
 When a user submits a natural language utterance \(q\), we use the SEMPRE 2.0 system to transform the utterance to a logical form~\cite{berant2013freebase,berant2013semantic}.
@@ -145,7 +145,7 @@ The extracted query contains one answer variable, \texttt{?x2}, and one intermed
 For each answer node we perform a depth first
 search to evaluate the probability of each set of triples that can construct
 the full subgraph.
-The maximum probability set of triples is returned as the trustworthiness of the answer.
+The maximum probability set of triples is returned as the confidence of the answer.
 
 \eat{%
 \begin{verbatim}
@@ -167,10 +167,10 @@ StatementPattern
 }
 
 \begin{algorithm}
-\caption{Algorithm for discovering the truthfulness of the answer.}
+\caption{Algorithm for discovering the confidence of an answer through a confidence.}
 \label{alg:probqa-truthfulness}
 \begin{algorithmic}[1]
-\Procedure{TrustWorthiness}{$t_{s(q)}^\alpha, \mathcal{D}$} %\Comment{Candidate triples and Knowledge Base}
+\Procedure{Confidence}{$t_{s(q)}^\alpha, \mathcal{D}$} 
 
 \State $G \leftarrow \mathtt{CreateSubGraph}(t_{s(q)}^\alpha)$ \label{algo:line:createsubgraph}
 
@@ -185,7 +185,7 @@ StatementPattern
 \end{algorithmic}
 \end{algorithm}
 
-Algorithm~\ref{alg:probqa-truthfulness} describes the algorithm for obtaining the truthfulness score.
+Algorithm~\ref{alg:probqa-truthfulness} describes the algorithm for obtaining the confidence score.
 Given the evaluated triples, we first perform a topological sort to generate a subgraph containing all facts (Line~\ref{algo:line:createsubgraph}).
 Next, we find all possible facts in the data that satisfy the subgraph (Line~\ref{algo:line:allpairs}).
 We can then calculate the maximum joint probability of facts from each of the path (Lines~\ref{algo:line:jointprob-start} to~\ref{algo:line:jointprob-end}).
